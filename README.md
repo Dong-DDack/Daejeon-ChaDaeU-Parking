@@ -3,13 +3,17 @@
 # 🅿️ 차대유~
 ### 주차할 데 찾으슈? 언제 확인한 자리인지도 봐유.
 
-대전의 주차장 위치와 요금, 확인 가능한 빈자리를 한곳에서 살펴보는 지도 서비스
+**대전 주차장, 헤매지 말고 차대유~**
+
+지도에서 목적지를 찾고, 주변 주차장의 빈자리와 요금을 확인하세요.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=222)
 ![Kakao Maps](https://img.shields.io/badge/Kakao_Maps-FFCD00?logo=kakao&logoColor=000)
-![Vercel](https://img.shields.io/badge/Vercel_배포_준비-000?logo=vercel&logoColor=white)
+[![Live Demo](https://img.shields.io/badge/차대유~_바로가기-2870F3?style=for-the-badge&logo=vercel&logoColor=white)](https://daejeon-chadaeu-parking.vercel.app/)
+
+**🌐 [서비스 이용하기](https://daejeon-chadaeu-parking.vercel.app/) · [소스 코드](https://github.com/Dong-DDack/Daejeon-ChaDaeU-Parking)**
 
 [주요 기능](#주요-기능) · [로컬 실행](#로컬-실행) · [Vercel 배포](#vercel-배포) · [데이터 안내](#데이터-안내)
 
@@ -17,9 +21,18 @@
 
 ---
 
-## 차대유~
+## 프로젝트 소개
 
-목적지 근처에 주차할 곳이 있는지, 요금은 얼마인지 찾아보세요. **차대유~**는 카카오 지도와 대전광역시 공개 주차 데이터를 연결합니다. 정보가 없거나 오래된 경우에는 그 상태도 함께 표시합니다.
+**차대유~**는 충청도 말투의 친근함을 담은 대전 주차 정보 서비스입니다. 목적지 주변의 주차장을 지도에서 찾고, 요금과 운영시간, 제공되는 빈자리 정보를 함께 확인할 수 있습니다.
+
+숫자만 보여 주는 대신 **언제 조회한 정보인지, 현재 확인할 수 있는 값인지**도 설명합니다. 외부 데이터 조회가 실패해도 마지막 정상값을 보존하고, 오래된 정보임을 표시해 사용자가 판단할 수 있도록 했습니다.
+
+| 프로젝트 | 차대유~ · Daejeon ChaDaeU Parking |
+| :--- | :--- |
+| 서비스 주소 | [daejeon-chadaeu-parking.vercel.app](https://daejeon-chadaeu-parking.vercel.app/) |
+| 대상 지역 | 대전광역시 · 원천 데이터가 제공되는 주차장 |
+| 화면 구성 | 지도 + 주차장 목록 + 상세 정보 + 일별 기록 |
+| 디자인 | 파란색 `#2870F3`와 반응형 화면 |
 
 > 대전에서 정보 들어오는 주차장만 보여드려유. 도착하실 땐 빈자리가 달라질 수도 있어유.
 
@@ -35,6 +48,8 @@
 | 📅 일별 기록 | KST 날짜별 마지막 성공값을 저장하고 직전 기록과의 차이를 계산합니다. |
 
 ## 사용 방법
+
+먼저 **[차대유~에 접속](https://daejeon-chadaeu-parking.vercel.app/)**하세요.
 
 1. **목적지 검색** — 대전역·둔산동 등 장소 또는 주차장 이름을 입력합니다.
 2. **주변 정보 확인** — 지도 마커와 정렬된 목록에서 주차장을 선택합니다.
@@ -59,7 +74,7 @@ flowchart LR
 | 서버 | FastAPI, httpx |
 | 데이터 처리 | XML 정규화, 전체 페이지 조회, 오류 상태 분류 |
 | 저장 | 로컬 SQLite / 운영 Postgres |
-| 배포 | Vercel 설정 포함 · 배포 URL은 아직 등록하지 않았습니다. |
+| 배포 | Vercel · [Production 서비스](https://daejeon-chadaeu-parking.vercel.app/) |
 
 ## 로컬 실행
 
