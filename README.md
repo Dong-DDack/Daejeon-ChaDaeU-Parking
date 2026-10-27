@@ -13,7 +13,7 @@
 ![Kakao Maps](https://img.shields.io/badge/Kakao_Maps-FFCD00?logo=kakao&logoColor=000)
 [![Live Demo](https://img.shields.io/badge/차대유~_바로가기-2870F3?style=for-the-badge&logo=vercel&logoColor=white)](https://daejeon-chadaeu-parking.vercel.app/)
 
-**🌐 [서비스 이용하기](https://daejeon-chadaeu-parking.vercel.app/) · [공개 심사 화면](https://daejeon-chadaeu-parking.vercel.app/review) · [소스 코드](https://github.com/Dong-DDack/Daejeon-ChaDaeU-Parking)**
+**🌐 [서비스 이용하기](https://daejeon-chadaeu-parking.vercel.app/) · [소스 코드](https://github.com/Dong-DDack/Daejeon-ChaDaeU-Parking)**
 
 [주요 기능](#주요-기능) · [로컬 실행](#로컬-실행) · [Vercel 배포](#vercel-배포) · [데이터 안내](#데이터-안내)
 
@@ -59,7 +59,7 @@
 
 ## 공개 심사 화면
 
-**[차대유~ /review](https://daejeon-chadaeu-parking.vercel.app/review)**에서 로그인 없이 확인할 수 있습니다.
+서비스 화면 맨 아래의 **정보 확인 · 심사 화면** 링크에서 로그인 없이 확인할 수 있습니다.
 
 - 공식 패키지 `aleph-t04-real-information-board-public-contract-v2`의 17개 파일 SHA-256·바이트 수 대조
 - 공식 9개 fixture 기반 정상·실패·복구 재생과 9개 시나리오 자동 검증
