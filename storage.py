@@ -4,6 +4,7 @@ import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
+from readings import daily_row, live_reading
 
 
 @contextmanager
@@ -43,6 +44,11 @@ def save(snapshot):
         db.execute(sql("INSERT INTO snapshots(id,payload) VALUES('latest',?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload"), (json.dumps(snapshot, ensure_ascii=False),))
         for item in snapshot['items']:
             record = dict(item, fetched_at=snapshot['fetched_at'], day=snapshot['day'], source_url=snapshot['source_url'])
+            reading = live_reading(item, snapshot['fetched_at'], snapshot['source_url'])
+            if reading:
+                old = db.execute(sql('SELECT payload FROM daily WHERE day=? AND parking_id=?'), (snapshot['day'], item['id'])).fetchone()
+                old_row = json.loads(old[0]).get('normalized_record') if old else None
+                record['normalized_record'] = daily_row(reading, old_row)
             db.execute(sql('INSERT INTO daily(day,parking_id,payload) VALUES(?,?,?) ON CONFLICT(day,parking_id) DO UPDATE SET payload=excluded.payload'),
                        (snapshot['day'], item['id'], json.dumps(record, ensure_ascii=False)))
 

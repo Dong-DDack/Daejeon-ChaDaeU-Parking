@@ -1,0 +1,2 @@
+# 공식 fixture 해시는 줄바꿈 변환 없이 원본 바이트를 기준으로 검증한다.
+public/assets/t04/** -text

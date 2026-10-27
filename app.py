@@ -8,10 +8,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 load_dotenv(Path(__file__).parent / '.env')
 import storage
 from parking import SOURCE, SourceError, parse_xml
+import review
+from readings import daily_row, live_reading
 
 app = FastAPI(title='차대유~', docs_url=None, redoc_url=None)
 KST = timezone(timedelta(hours=9))
@@ -42,6 +45,75 @@ def envelope(snapshot, error='none'):
 @app.get('/')
 def home():
     return FileResponse(ROOT / 'public/index.html')
+
+
+@app.get('/review')
+def review_page():
+    return FileResponse(ROOT / 'public/review.html')
+
+
+@app.get('/api/review/package')
+def review_package():
+    return review.verify_package()
+
+
+class ReplayRequest(BaseModel):
+    fixture_ids: list[str] = Field(default_factory=list, max_length=100)
+
+
+@app.post('/api/review/replay')
+def review_replay(request: ReplayRequest):
+    # 공식 fixture ID 순서로 매번 재구성. 임의 payload와 실제 기록은 받지 않는다.
+    if not review.verify_package()['verified']:
+        raise HTTPException(409, 'official package hash mismatch')
+    state = review.reset()
+    checks = []
+    fixture_record_ids = {}
+    try:
+        for fixture_id in request.fixture_ids:
+            previous_good = state['current_reading']
+            state = review.run(state, fixture_id)
+            expected = review.FIXTURES[fixture_id]['expected']
+            current = state['current_reading']
+            actual = dict(freshness=state['status']['freshness'], error_code=state['status']['error_code'],
+                          row_count=len(state['daily_readings']), stored_value=current['normalized_value'] if current else None,
+                          delta=state['last_delta'], preserve_last_good=current is not None and (state['status']['error_code'] == 'none' or current == previous_good))
+            current_row = next((r for r in state['daily_readings'] if current and r['signal_id'] == current['signal_id'] and r['record_date'] == current['record_date']), None)
+            if 'same_record_id_as' in expected:
+                reference = expected['same_record_id_as']
+                actual['same_record_id_as'] = reference if current_row and fixture_record_ids.get(reference) == current_row['record_id'] else None
+            if current_row:
+                fixture_record_ids[fixture_id] = current_row['record_id']
+            if 'record_date' in expected:
+                actual['record_date'] = current['record_date'] if current else None
+            checks.append(dict(fixture_id=fixture_id, expected=expected, actual=actual,
+                               passed=all(actual.get(k) == v for k, v in expected.items())))
+    except (ValueError, KeyError, TypeError, AttributeError):
+        raise HTTPException(400, 'invalid official fixture sequence') from None
+    return dict(state=state, checks=checks, mode='synthetic', persisted_to_live=False)
+
+
+@app.get('/api/review/live/{parking_id}')
+def review_live(parking_id: str):
+    if len(parking_id) != 20 or not all(c in '0123456789abcdef' for c in parking_id):
+        raise HTTPException(400, 'invalid id')
+    try:
+        records = storage.history(parking_id)
+        rows = []
+        for record in records:
+            reading = live_reading(record, record['fetched_at'], record.get('source_url', SOURCE))
+            if reading:
+                normalized = record.get('normalized_record') or daily_row(reading)
+                rows.append(dict(day=record['day'], source_fields=record.get('raw', {}),
+                                 stored=normalized, displayed_value=record['available'],
+                                 legacy_normalized_view='normalized_record' not in record,
+                                 receipt_payload_candidate=dict(source_url=reading['source_url'],
+                                                                source_observed_at=reading['source_time'],
+                                                                normalized_value=reading['normalized_value'], unit=reading['unit'])))
+        return dict(records=rows, mode='live', platform_receipts_issued=False,
+                    source_time_note='원천 관측 시각 미제공. C07 판단은 담당자 확인 필요.')
+    except Exception:
+        return JSONResponse(status_code=503, content={'records': [], 'error': '기록 저장소 연결 실패'})
 
 
 @app.get('/api/config')

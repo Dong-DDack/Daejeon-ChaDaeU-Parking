@@ -43,10 +43,10 @@ class CoreTests(unittest.TestCase):
     def test_same_day_upsert_and_next_day(self):
         with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parent) as temp, patch.dict(os.environ,{},clear=True), patch.object(storage,'__file__',str(Path(temp)/'storage.py')):
             item=parse_xml(xml())[0][0]
-            snapshot=dict(items=[item],fetched_at='2030-01-01T23:59:00+09:00',day='2030-01-01',source_url='synthetic')
+            snapshot=dict(items=[item],fetched_at='2030-01-01T23:59:00+09:00',day='2030-01-01',source_url='https://fixtures.aleph.invalid/test')
             storage.save(snapshot);item['available']=15;storage.save(snapshot);storage.save(snapshot)
             self.assertEqual(len(storage.history(item['id'])),1)
-            snapshot['day']='2030-01-02';storage.save(snapshot)
+            snapshot['day']='2030-01-02';snapshot['fetched_at']='2030-01-02T00:01:00+09:00';storage.save(snapshot)
             records=storage.history(item['id']);self.assertEqual(len(records),2)
             self.assertEqual(records[0]['available'],15)
             self.assertEqual(storage.latest()['day'],'2030-01-02')

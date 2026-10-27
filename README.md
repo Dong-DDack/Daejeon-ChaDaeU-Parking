@@ -13,7 +13,7 @@
 ![Kakao Maps](https://img.shields.io/badge/Kakao_Maps-FFCD00?logo=kakao&logoColor=000)
 [![Live Demo](https://img.shields.io/badge/차대유~_바로가기-2870F3?style=for-the-badge&logo=vercel&logoColor=white)](https://daejeon-chadaeu-parking.vercel.app/)
 
-**🌐 [서비스 이용하기](https://daejeon-chadaeu-parking.vercel.app/) · [소스 코드](https://github.com/Dong-DDack/Daejeon-ChaDaeU-Parking)**
+**🌐 [서비스 이용하기](https://daejeon-chadaeu-parking.vercel.app/) · [공개 심사 화면](https://daejeon-chadaeu-parking.vercel.app/review) · [소스 코드](https://github.com/Dong-DDack/Daejeon-ChaDaeU-Parking)**
 
 [주요 기능](#주요-기능) · [로컬 실행](#로컬-실행) · [Vercel 배포](#vercel-배포) · [데이터 안내](#데이터-안내)
 
@@ -56,6 +56,21 @@
 3. **상세 정보 확인** — 요금·운영시간·가용 대수와 마지막 조회 시각을 확인합니다.
 
 최신 데이터를 받고 싶다면 **다시 조회**를 누르세요. 원천 호출을 줄이기 위해 최근 60초의 정상 결과를 재사용합니다.
+
+## 공개 심사 화면
+
+**[차대유~ /review](https://daejeon-chadaeu-parking.vercel.app/review)**에서 로그인 없이 확인할 수 있습니다.
+
+- 공식 패키지 `aleph-t04-real-information-board-public-contract-v2`의 17개 파일 SHA-256·바이트 수 대조
+- 공식 9개 fixture 기반 정상·실패·복구 재생과 9개 시나리오 자동 검증
+- 같은 날짜 record ID 유지, 다섯 실패 후 105/1행 보존, 복구 후 120/2행·변화 15 확인
+- 실제 원천 필드·정규화 저장값·화면값, 선택한 두 날짜의 변화 대조
+
+‘C19 실패 시작 상태’ → ‘다시 시도’를 누르면 `stale / timeout`, 값 105, 1행에서 `fresh / none`, 값 120, 2행으로 바뀝니다. 복구를 반복해도 다음 날짜 행은 1건입니다. 합성 시험은 브라우저 탭의 fixture ID 순서로만 보존되고 서버에서 매번 공식 입력으로 재구성합니다. 실제 DB는 변경하지 않습니다.
+
+실제·합성 경로는 공통 `readings.py`의 검증·일별 행 생성 함수를 사용합니다. 기존 실제 기록은 변경하지 않으며, 새 성공 조회부터 정규화 행을 함께 저장합니다. 과거 행을 정규화해 표시하는 경우 `legacy_normalized_view`로 구분합니다.
+
+플랫폼의 `t04_day` 봉인 영수증을 자체 발급하지 않습니다. 실제 원천 시각(C07)·서로 다른 실제 날짜의 영수증 2건은 별도 확인이 필요합니다.
 
 ## 기술 구성
 
@@ -164,8 +179,11 @@ http://localhost:8000
 ├─ app.py                 # 라우트·외부 조회·캐시·오류 상태
 ├─ parking.py             # XML 검증·정규화
 ├─ storage.py             # snapshot·KST 일별 기록
+├─ readings.py            # 실제·합성 공통 정규화와 일별 행
+├─ review.py              # 공식 fixture 재생·해시 검증
 ├─ public/
-│  ├─ index.html          # 화면
+│  ├─ index.html          # 지도 화면
+│  ├─ review.html         # 공개 심사 화면
 │  └─ assets/
 │     ├─ app.js           # 지도·검색·정렬·상세 카드
 │     └─ style.css        # 반응형 스타일
@@ -189,7 +207,7 @@ XML 정규화, 누락·음수 가용 대수, 오류 분류, 날짜별 중복 방
 <details>
 <summary><b>과제 제출 기준 관련 남은 사항</b></summary>
 
-현재 합성 실패 재생과 원천 대조 UI는 제거되었습니다. 공식 과제 fixture·SHA-256 검증도 연결되어 있지 않습니다. 서로 다른 실제 KST 날짜 조회 기록 2건, 원천 관측 시각 조건 등은 별도 확인이 필요합니다. 이 README가 과제 전체 통과를 의미하지 않습니다.
+공식 fixture 재생·SHA-256 검증·실제 원천 대조를 /review에 구현했습니다. 서로 다른 실제 KST 날짜의 t04_day 봉인 영수증 정확히 2건과 저장·표시값 대조, 원천 관측 시각(C07), 제출 필드와 전체 비밀값 검사는 별도로 필요합니다. 합성 시험 통과가 C01~C35 전체 통과를 뜻하지 않습니다. 최종 소스 URL에는 전체 commit ID를 포함해야 합니다(C35).
 
 </details>
 
